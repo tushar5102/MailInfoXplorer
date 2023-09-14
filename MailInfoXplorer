@@ -1,0 +1,132 @@
+import sys
+import email
+from email.header import decode_header
+from datetime import datetime
+import os
+
+def decode_subject(subject):
+    decoded_subject = ""
+    for fragment, encoding in decode_header(subject):
+        if encoding:
+            decoded_subject += fragment.decode(encoding)
+        else:
+            decoded_subject += fragment
+    return decoded_subject
+
+def parse_date(timestamp_str):
+    try:
+        # Attempt to parse the timestamp using various common formats
+        formats = ["%a, %d %b %Y %H:%M:%S %z", "%d %b %Y %H:%M:%S %z", "%Y-%m-%d %H:%M:%S %z"]
+        for fmt in formats:
+            try:
+                parsed_timestamp = datetime.strptime(timestamp_str, fmt)
+                return parsed_timestamp.strftime('%Y-%m-%d %H:%M:%S %Z')
+            except ValueError:
+                pass
+
+        # If none of the formats worked, return the original timestamp
+        return timestamp_str
+
+    except Exception as e:
+        return "N/A"
+
+def extract_routing_info(message):
+    # Extract routing information here if needed
+    # Example: Get the Received headers
+    received_headers = message.get_all("Received", [])
+    return received_headers
+
+def extract_attachments(message, attachment_dir):
+    attachment_count = 0
+    if attachment_dir:
+        if not os.path.exists(attachment_dir):
+            os.makedirs(attachment_dir)
+
+        for part in message.walk():
+            if part.get_content_maintype() == 'multipart':
+                continue
+            if part.get('Content-Disposition') is None:
+                continue
+
+            attachment_count += 1
+            filename = part.get_filename()
+            if not filename:
+                filename = f"attachment_{attachment_count}"
+
+            filepath = os.path.join(attachment_dir, filename)
+            with open(filepath, 'wb') as attachment_file:
+                attachment_file.write(part.get_payload(decode=True))
+
+    return attachment_count
+
+def extract_content_summary(message):
+    # Extract and display a summary of the email content here
+    # Example: Display the first few lines of the email body
+    email_body = ""
+    for part in message.walk():
+        if part.get_content_type() == "text/plain":
+            email_body = part.get_payload(decode=True).decode('utf-8', 'ignore')
+            break
+
+    summary_length = 300  # Display the first 300 characters of the email body
+    if len(email_body) > summary_length:
+        email_summary = email_body[:summary_length] + "..."
+    else:
+        email_summary = email_body
+
+    return email_summary
+
+def extract_email_info(email_path, attachment_dir=None):
+    try:
+        with open(email_path, 'r') as email_file:
+            raw_email = email_file.read()
+        
+        message = email.message_from_string(raw_email)
+
+        sender = message.get("From", "N/A")
+        recipient = message.get("To", "N/A")
+        subject = decode_subject(message.get("Subject", "N/A"))
+        timestamp = message.get("Date", "N/A")
+
+        parsed_timestamp = parse_date(timestamp)
+
+        print("Email Information:")
+        print(f"Sender: {sender}")
+        print(f"Recipient: {recipient}")
+        print(f"Subject: {subject}")
+        print(f"Timestamp: {parsed_timestamp}")
+
+        # Extract and display routing information
+        routing_info = extract_routing_info(message)
+        if routing_info:
+            print("\nRouting Information:")
+            for idx, received_header in enumerate(routing_info, start=1):
+                print(f"Received-{idx}: {received_header}")
+
+        # Extract and save attachments if attachment_dir is provided
+        if attachment_dir:
+            attachment_count = extract_attachments(message, attachment_dir)
+            print(f"\nAttachments: {attachment_count} saved to '{attachment_dir}'")
+
+        # Display a summary of the email content
+        email_summary = extract_content_summary(message)
+        print("\nEmail Content Summary:")
+        print(email_summary)
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python email_info_extractor.py <email_file> [attachment_dir]")
+        sys.exit(1)
+
+    email_path = sys.argv[1]
+    
+    # Check if the attachment_dir argument is provided
+    if len(sys.argv) > 2:
+        attachment_dir = sys.argv[2]
+    else:
+        attachment_dir = None
+
+    extract_email_info(email_path, attachment_dir)
