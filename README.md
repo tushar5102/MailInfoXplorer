@@ -85,14 +85,14 @@ Here's an example command to run the script:
     python email_info_extractor.py sample_email.eml output_attachments
 
 
-
-
-
-
 ## License
 
-SystemGuardian is licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute the script in accordance with the terms of this license.
+MailInfoXplorer is licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute the script in accordance with the terms of this license.
 
 ## Disclaimer
 
-Please note that the SystemGuardian script is provided as-is, without any warranty or guarantee. Use it at your own risk. Always review the code and understand the actions it performs before running it on your system.
+Please note that the MailInfoXplorer script is provided as-is, without any warranty or guarantee. Use it at your own risk. Always review the code and understand the actions it performs before running it on your system.
+
+## Documentation
+
+For detailed information on how to use and customize the script, refer to the [Wiki](https://github.com/your-repo/wiki).
