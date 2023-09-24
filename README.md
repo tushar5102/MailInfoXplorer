@@ -1,4 +1,4 @@
-# Email Information Extractor
+# MailInfoXplorer
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
@@ -6,7 +6,7 @@
 
 **Email**: tushar.patil.5202@gmail.com
 
-The Email Information Extractor is a Python script designed for extracting essential information from email messages. It provides detailed insights into email metadata, including sender, recipient, subject, timestamp, routing data, attachments, and a summary of email content. This tool is valuable for email analysis and processing tasks.
+The MailInfoXplorer is a Python script designed for extracting essential information from email messages. It provides detailed insights into email metadata, including sender, recipient, subject, timestamp, routing data, attachments, and a summary of email content. This tool is valuable for email analysis and processing tasks.
 
 ## Features
 
